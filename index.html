@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Game</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap");
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121213;
+            color: #ffffff;
+            font-family: Montserrat;
+        }
+        .container {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            grid-gap: 5px;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px;
+        }
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #3a3a3c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            text-transform: uppercase;
+        }
+        .cell.correct {
+            animation: flip_correct 0.5s forwards linear;
+        }
+        .cell.present {
+            animation: flip_present 0.5s forwards linear;
+        }
+        .cell.absent {
+            animation: flip_absent 0.5s forwards linear;
+        }
+        @keyframes flip_correct {
+            0% {
+                transform: rotateX(0deg);
+            }
+            50% {
+                transform: rotateX(90deg);
+            }
+            100% {
+                transform: rotateX(0deg);
+                background-color: #6aaa64;
+            }
+        }
+        @keyframes flip_present {
+            0% {
+                transform: rotateX(0deg);
+            }
+            50% {
+                transform: rotateX(90deg);
+            }
+            100% {
+                transform: rotateX(0deg);
+                background-color: #c9b458;
+            }
+        }
+        @keyframes flip_absent {
+            0% {
+                transform: rotateX(0deg);
+            }
+            50% {
+                transform: rotateX(90deg);
+            }
+            100% {
+                transform: rotateX(0deg);
+                background-color: #3a3a3c;
+            }
+        }
+        div.cell:nth-child(1) {
+            animation-delay: 100ms;
+        }
+        div.cell:nth-child(2) {
+            animation-delay: 600ms;
+        }
+        div.cell:nth-child(3) {
+            animation-delay: 1100ms;
+        }
+        div.cell:nth-child(4) {
+            animation-delay: 1600ms;
+        }
+        div.cell:nth-child(5) {
+            animation-delay: 2100ms;
+        }
+        .keyboard {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-gap: 5px;
+        }
+        .key {
+            padding: 10px;
+            background-color: #818384;
+            border: none;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .key.enter {
+            grid-column: span 2;
+        }
+        .key.delete {
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="row">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="row">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="row">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="row">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="row">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+    </div>
+<div class="keyboard">
+    <button class="key">Q</button>
+    <button class="key">W</button>
+    <button class="key">E</button>
+    <button class="key">R</button>
+    <button class="key">T</button>
+    <button class="key">Y</button>
+    <button class="key">U</button>
+    <button class="key">I</button>
+    <button class="key">O</button>
+    <button class="key">P</button>
+    <button class="key">A</button>
+    <button class="key">S</button>
+    <button class="key">D</button>
+    <button class="key">F</button>
+    <button class="key">G</button>
+    <button class="key">H</button>
+    <button class="key">J</button>
+    <button class="key">K</button>
+    <button class="key">L</button>
+    <button class="key enter">Enter</button>
+    <button class="key">Z</button>
+    <button class="key">X</button>
+    <button class="key">C</button>
+    <button class="key">V</button>
+    <button class="key">B</button>
+    <button class="key">N</button>
+    <button class="key">M</button>
+    <button class="key delete">Delete</button>
+</div>
+<script>
+
+
+let La;
+let Ta;
+let allowedWords;
+let targetWord;
+let currentRow = 0;
+let currentCol = 0;
+let currentGuess = "";
+
+fetch('wordle-La.txt')
+.then(response => {
+if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+}
+return response.text();
+})
+.then(text => {
+    La = text.split('\n');
+    La = La.map(w=>w.toUpperCase());
+})
+.catch(error => {
+console.error('Error fetching the file:', error);
+});
+
+fetch('wordle-Ta.txt')
+.then(response => {
+if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+}
+return response.text();
+})
+.then(text => {
+    Ta = text.split('\n');
+    Ta = Ta.map(w=>w.toUpperCase());
+    allowedWords = [...La, ...Ta];
+    targetWord = La[Math.floor(Math.random() * La.length)];
+})
+.catch(error => {
+console.error('Error fetching the file:', error);
+});
+
+
+
+    // const La = ['APPLE', 'GRAPE', 'PEACH'];
+    // const Ta = ['BERRY', 'MELON', 'LEMON', 'MANGO', 'PLUMB', 'CHERRY', 'GUAVA'];
+    // const allowedWords = [...La, ...Ta];
+    // let currentRow = 0;
+    // let currentCol = 0;
+    // let currentGuess = "";
+    // const targetWord = La[Math.floor(Math.random() * La.length)];
+
+    document.addEventListener("keydown", handleKeyPress);
+    document.querySelectorAll(".key").forEach(key => key.addEventListener("click", handleKeyClick));
+
+    function handleKeyPress(event) {
+        const key = event.key.toUpperCase();
+        if (key === "ENTER") {
+            submitGuess();
+        } else if (key === "BACKSPACE" || key === "DELETE") {
+            deleteLetter();
+        } else if (/^[A-Z]$/.test(key)) {
+            addLetter(key);
+        }
+    }
+
+    function handleKeyClick(event) {
+        const key = event.target.textContent;
+        if (key === "Enter") {
+            submitGuess();
+        } else if (key === "Delete") {
+            deleteLetter();
+        } else {
+            addLetter(key);
+        }
+    }
+
+    function addLetter(letter) {
+        if (currentCol < 5) {
+            const cell = document.querySelector(`.row:nth-child(${currentRow + 1}) .cell:nth-child(${currentCol + 1})`);
+            cell.textContent = letter;
+            currentGuess += letter;
+            currentCol++;
+        }
+    }
+
+    function deleteLetter() {
+        if (currentCol > 0) {
+            currentCol--;
+            const cell = document.querySelector(`.row:nth-child(${currentRow + 1}) .cell:nth-child(${currentCol + 1})`);
+            cell.textContent = "";
+            currentGuess = currentGuess.slice(0, -1);
+        }
+    }
+
+    function submitGuess() {
+        if (currentGuess.length !== 5) return;
+        if (!allowedWords.includes(currentGuess)) {
+            alert("Word not in list");
+            return;
+        }
+        const row = document.querySelector(`.row:nth-child(${currentRow + 1})`);
+        for (let i = 0; i < 5; i++) {
+            const cell = row.children[i];
+            if (currentGuess[i] === targetWord[i]) {
+                cell.classList.add("correct");
+            } else if (targetWord.includes(currentGuess[i])) {
+                cell.classList.add("present");
+            } else {
+                cell.classList.add("absent");
+            }
+        }
+        if (currentGuess === targetWord) {
+            alert("Congratulations! You've guessed the word!");
+            document.removeEventListener("keydown", handleKeyPress);
+            document.querySelectorAll(".key").forEach(key => key.removeEventListener("click", handleKeyClick));
+        } else {
+            currentRow++;
+            currentCol = 0;
+            currentGuess = "";
+            if (currentRow === 6) {
+                alert(`Game over! The word was ${targetWord}`);
+                document.removeEventListener("keydown", handleKeyPress);
+                document.querySelectorAll(".key").forEach(key => key.removeEventListener("click", handleKeyClick));
+            }
+        }
+    }
+</script>
+</body>
+</html>
