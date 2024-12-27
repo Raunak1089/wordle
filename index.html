@@ -5,16 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wordle Game</title>
     <style>
-        @import url("https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap");
+    @import url("https://fonts.googleapis.com/css?family=Anton:400,500,600,700&display=swap");
+    @import url("https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700&display=swap");
+    @import url("https://fonts.googleapis.com/css?family=Outfit:400,500,600,700&display=swap");
+    @import url("https://fonts.googleapis.com/css?family=Roboto:400,500,600,700&display=swap");
 
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #121213;
             color: #ffffff;
-            font-family: Montserrat;
+            font-family: Outfit;
+        }
+        #heading {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-family: Anton;
+        }
+        #msg {
+            background: white;
+            font-family: Roboto;
+            color: black;
+            text-transform: uppercase;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: -8px auto;
+            z-index: 1;
+            transition: 0.2s ease;
+            font-size: 1.3em;
+            letter-spacing: -1px;
+            opacity: 0;
         }
         .container {
             display: grid;
@@ -25,6 +48,9 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-gap: 5px;
+        }
+        .row.vibrate {
+            animation: vibr 0.2s linear;
         }
         .cell {
             width: 60px;
@@ -44,6 +70,10 @@
         }
         .cell.absent {
             animation: flip_absent 0.5s forwards linear;
+        }
+        .cell.won {
+            background-color: #6aaa64;
+            animation: jump 0.5s linear;
         }
         @keyframes flip_correct {
             0% {
@@ -81,6 +111,34 @@
                 background-color: #3a3a3c;
             }
         }
+        @keyframes jump {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        @keyframes vibr {
+            0% {
+                transform: translateX(0px);
+            }
+            25% {
+                transform: translateX(10px);
+            }
+            50% {
+                transform: translateX(-10px);
+            }
+            75% {
+                transform: translateX(10px);
+            }
+            100% {
+                transform: translateX(0px);
+            }
+        }
         div.cell:nth-child(1) {
             animation-delay: 100ms;
         }
@@ -109,6 +167,16 @@
             color: #ffffff;
             font-size: 1rem;
             cursor: pointer;
+            font-family: Outfit;
+        }
+        .key.green {
+            background-color: #6aaa64;
+        }
+        .key.yellow {
+            background-color: #c9b458;
+        }
+        .key.black {
+            background-color: #3a3a3c;
         }
         .key.enter {
             grid-column: span 2;
@@ -119,6 +187,8 @@
     </style>
 </head>
 <body>
+    <div id="heading">Wordle</div>
+    <div id="msg">MESSAGE</div>
     <div class="container">
         <div class="row">
             <div class="cell"></div>
@@ -195,7 +265,7 @@
 </div>
 <script>
 
-
+/*
 let La;
 let Ta;
 let allowedWords;
@@ -235,16 +305,20 @@ return response.text();
 .catch(error => {
 console.error('Error fetching the file:', error);
 });
+*/
 
 
+    const La = ['APPLE', 'GRAPE', 'PEACH'];
+    const Ta = ['BERRY', 'MELON', 'LEMON', 'MANGO', 'PLUMB', 'CHERRY', 'GUAVA'];
+    const allowedWords = [...La, ...Ta];
+    let currentRow = 0;
+    let currentCol = 0;
+    let currentGuess = "";
+    const targetWord = La[Math.floor(Math.random() * La.length)];
 
-    // const La = ['APPLE', 'GRAPE', 'PEACH'];
-    // const Ta = ['BERRY', 'MELON', 'LEMON', 'MANGO', 'PLUMB', 'CHERRY', 'GUAVA'];
-    // const allowedWords = [...La, ...Ta];
-    // let currentRow = 0;
-    // let currentCol = 0;
-    // let currentGuess = "";
-    // const targetWord = La[Math.floor(Math.random() * La.length)];
+    let greenLetters = [];
+    let yellowLetters = [];
+    let blackLetters = [];
 
     document.addEventListener("keydown", handleKeyPress);
     document.querySelectorAll(".key").forEach(key => key.addEventListener("click", handleKeyClick));
@@ -290,24 +364,53 @@ console.error('Error fetching the file:', error);
     }
 
     function submitGuess() {
+        const row = document.querySelector(`.row:nth-child(${currentRow + 1})`);
         if (currentGuess.length !== 5) return;
         if (!allowedWords.includes(currentGuess)) {
-            alert("Word not in list");
+            row.classList.add("vibrate");
+            setTimeout(() => {
+                row.classList.remove("vibrate");
+            }, 200);
+            showMsg("Word not in list");
             return;
         }
-        const row = document.querySelector(`.row:nth-child(${currentRow + 1})`);
+        let targetLetters = targetWord.split('');
         for (let i = 0; i < 5; i++) {
             const cell = row.children[i];
             if (currentGuess[i] === targetWord[i]) {
                 cell.classList.add("correct");
-            } else if (targetWord.includes(currentGuess[i])) {
+                targetLetters[i] = null;
+                greenLetters.push(currentGuess[i]);
+            } else if (targetLetters.includes(currentGuess[i])) {
                 cell.classList.add("present");
+                targetLetters[targetLetters.indexOf(currentGuess[i])] = null;
+                yellowLetters.push(currentGuess[i]);
             } else {
                 cell.classList.add("absent");
+                if (!yellowLetters.includes(currentGuess[i])) blackLetters.push(currentGuess[i]);
             }
         }
+
+        let all_keys = document.querySelectorAll('div.keyboard button');
+
+        for (let key of all_keys) {
+            if (greenLetters.includes(key.textContent)) {key.setAttribute('class', 'key green');}
+            else if (yellowLetters.includes(key.textContent)) {key.setAttribute('class', 'key yellow');}
+            else if (blackLetters.includes(key.textContent)) {key.setAttribute('class', 'key black');}
+        }
+
         if (currentGuess === targetWord) {
-            alert("Congratulations! You've guessed the word!");
+            setTimeout(()=>{
+                for (let i = 0; i < 5; i++) {
+                    row.children[i].style.animationDelay = `${i * 100}ms`;
+                }
+                showMsg("Genius!");
+                for (let i = 0; i < 5; i++) {
+                    const cell = row.children[i];
+                    cell.classList.add("won");
+                }
+            }, 2700);
+
             document.removeEventListener("keydown", handleKeyPress);
             document.querySelectorAll(".key").forEach(key => key.removeEventListener("click", handleKeyClick));
         } else {
@@ -315,11 +418,19 @@ console.error('Error fetching the file:', error);
             currentCol = 0;
             currentGuess = "";
             if (currentRow === 6) {
-                alert(`Game over! The word was ${targetWord}`);
+                showMsg(`Game over! The word was ${targetWord}`);
                 document.removeEventListener("keydown", handleKeyPress);
                 document.querySelectorAll(".key").forEach(key => key.removeEventListener("click", handleKeyClick));
             }
         }
+    }
+
+    function showMsg(msg) {
+        document.getElementById("msg").style.opacity = 1;
+        document.getElementById("msg").textContent = msg;
+        setTimeout(() => {
+            document.getElementById("msg").style.opacity = 0;
+        }, 5000);
     }
 </script>
 </body>
