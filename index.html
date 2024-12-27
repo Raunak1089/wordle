@@ -345,12 +345,13 @@ console.error('Error fetching the file:', error);
         const key = event.target.textContent;
         if (key === "Enter") {
             submitGuess();
-        } else if (key === "Delete") {
+        } else if (event.target.outerHTML.includes('delete')) {
             deleteLetter();
         } else {
             addLetter(key);
         }
     }
+
 
     function addLetter(letter) {
         if (currentCol < 5) {
