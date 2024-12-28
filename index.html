@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -268,7 +267,7 @@
         <button class="key">B</button>
         <button class="key">N</button>
         <button class="key">M</button>
-        <button class="key">
+        <button class="key" id="delete">
             <i class="fa-sharp fa-light fa-delete-left"></i>
         </button>
     </div>
@@ -318,8 +317,8 @@ console.error('Error fetching the file:', error);
 
 
 /*
-    const La = ['APPLE', 'GRAPE', 'PEACH'];
-    const Ta = ['BERRY', 'MELON', 'LEMON', 'MANGO', 'PLUMB', 'CHERRY', 'GUAVA'];
+    const La = ['APPLE', 'GRAPE', 'PEACH', 'AFIRE'];
+    const Ta = ['BERRY', 'MELON', 'LEMON', 'MANGO', 'PLUMB', 'CHERRY', 'GUAVA', 'THREE', 'QUEUE', 'ADIEU', 'ARISE'];
     const allowedWords = [...La, ...Ta];
     let currentRow = 0;
     let currentCol = 0;
@@ -355,7 +354,6 @@ console.error('Error fetching the file:', error);
         }
     }
 
-
     function addLetter(letter) {
         if (currentCol < 5) {
             const cell = document.querySelector(`.row:nth-child(${currentRow + 1}) .cell:nth-child(${currentCol + 1})`);
@@ -386,22 +384,44 @@ console.error('Error fetching the file:', error);
             return;
         }
         let targetLetters = targetWord.split('');
+
+        let green_cells = [];
+        let yellow_cells = [];
+        for (let i = 0; i < 5; i++) {
+            if (currentGuess[i] === targetWord[i]) {
+                green_cells.push(i);
+                targetLetters[i] = null;
+            }
+        }
+        console.log(green_cells);
+        
+        for (let i = 0; i < 5; i++) {
+            if (!green_cells.includes(i)) {
+                if (targetLetters.includes(currentGuess[i])) {
+                    yellow_cells.push(i);
+                    targetLetters[targetLetters.indexOf(currentGuess[i])] = null;
+                }
+            }
+        }
+        console.log(yellow_cells);
+
         for (let i = 0; i < 5; i++) {
             const cell = row.children[i];
-            if (currentGuess[i] === targetWord[i]) {
+            if (green_cells.includes(i)) {
                 cell.classList.add("correct");
-                targetLetters[i] = null;
                 greenLetters.push(currentGuess[i]);
-            } else if (targetLetters.includes(currentGuess[i])) {
+            } else if (yellow_cells.includes(i)) {
                 cell.classList.add("present");
-                targetLetters[targetLetters.indexOf(currentGuess[i])] = null;
                 yellowLetters.push(currentGuess[i]);
             } else {
                 cell.classList.add("absent");
-                if (!yellowLetters.includes(currentGuess[i])) blackLetters.push(currentGuess[i]);
+                blackLetters.push(currentGuess[i]);
             }
         }
 
+
+
+        // COLOUR THE KEYS  ___________________________________________
         let all_keys = document.querySelectorAll('div.keyboard button');
 
         for (let key of all_keys) {
