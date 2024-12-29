@@ -330,7 +330,7 @@ return response.text();
     Ta = Ta.map(w=>w.toUpperCase());
     allowedWords = [...La, ...Ta];
     // targetWord = La[Math.floor(Math.random() * La.length)];
-    targetWord = randomList[indexToday];
+    targetWord = La[randomList[indexToday]];
 })
 .catch(error => {
 console.error('Error fetching the file:', error);
