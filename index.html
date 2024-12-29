@@ -308,7 +308,7 @@ return response.text();
 .then(text => {
     Ta = text.split('\n');
     Ta = Ta.map(w=>w.toUpperCase());
-    allowedWords = [...La, ...Ta];
+    allowedWords = [...La, ...Ta, "KRUTI"];
     //targetWord = La[Math.floor(Math.random() * La.length)];
     targetWord = "KRUTI";
 })
