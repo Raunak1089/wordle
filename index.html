@@ -275,6 +275,11 @@
 <script>
 
 
+let first = [0, 330, 660, 991, 1322, 1653, 1984];
+let second = [0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 143, 154, 165, 176, 187, 198, 209, 220, 231, 242, 253, 264, 275, 286, 297, 308, 319];
+let third = new Date().getMonth() % 12;
+
+let indexToday = first[new Date().getDay()] + second[new Date().getDate() % 29] + third;
 let La;
 let Ta;
 let allowedWords;
@@ -282,6 +287,21 @@ let targetWord;
 let currentRow = 0;
 let currentCol = 0;
 let currentGuess = "";
+let randomList;
+
+fetch('randomList.txt')
+.then(response => {
+if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+}
+return response.text();
+})
+.then(text => {
+    randomList = eval(text);
+})
+.catch(error => {
+console.error('Error fetching the file:', error);
+});
 
 fetch('wordle-La.txt')
 .then(response => {
@@ -308,9 +328,9 @@ return response.text();
 .then(text => {
     Ta = text.split('\n');
     Ta = Ta.map(w=>w.toUpperCase());
-    allowedWords = [...La, ...Ta, "KRUTI"];
-    //targetWord = La[Math.floor(Math.random() * La.length)];
-    targetWord = "KRUTI";
+    allowedWords = [...La, ...Ta];
+    // targetWord = La[Math.floor(Math.random() * La.length)];
+    targetWord = randomList[indexToday];
 })
 .catch(error => {
 console.error('Error fetching the file:', error);
