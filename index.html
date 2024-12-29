@@ -309,7 +309,8 @@ return response.text();
     Ta = text.split('\n');
     Ta = Ta.map(w=>w.toUpperCase());
     allowedWords = [...La, ...Ta];
-    targetWord = La[Math.floor(Math.random() * La.length)];
+    //targetWord = La[Math.floor(Math.random() * La.length)];
+    targetWord = "KRUTI";
 })
 .catch(error => {
 console.error('Error fetching the file:', error);
