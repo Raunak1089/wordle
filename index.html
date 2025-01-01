@@ -188,6 +188,10 @@
     </style>
 </head>
 <body>
+    <div style="display: flex;justify-content: space-between;width: 320px;">
+        <div id="gamesplayed"></div>
+        <div id="streak"></div>
+    </div>
     <div id="heading">Wordle</div>
     <div id="msg">MESSAGE</div>
     <div class="container">
@@ -274,6 +278,83 @@
 </div>
 <script>
 
+let savedWordle;
+let gameGoing = true;
+function today() {
+    return new Date().toJSON().split('T')[0];
+}
+
+if (!localStorage.getItem('wordle')) {
+    savedWordle = {};
+    savedWordle[today()] = [null, [], false];
+    localStorage.setItem('wordle', JSON.stringify(savedWordle));
+} else if (!JSON.parse(localStorage.getItem('wordle'))[today()]) {
+    savedWordle = JSON.parse(localStorage.getItem('wordle'));
+    savedWordle[today()] = [null, [], false];
+} else {
+    savedWordle = JSON.parse(localStorage.getItem('wordle'));
+}
+
+function pressKey(K){
+    const keyPressEvent = new KeyboardEvent('keydown', {
+        key: K,
+        code: `Key${K}`,
+        bubbles: true
+    });
+
+    document.body.dispatchEvent(keyPressEvent);
+}
+
+function pressEnter(){
+    const enterKeyEvent = new KeyboardEvent('keydown', {
+    key: 'Enter',
+    keyCode: 13,
+    code: 'Enter',
+    which: 13,
+    bubbles: true,
+    cancelable: true
+    });
+    document.dispatchEvent(enterKeyEvent);
+}
+
+//  RETRIEVE TODAY'S CONTINUING GAME  _____________________
+if (savedWordle[today()][1].length > 0) {
+    setTimeout(()=>{
+        gameGoing = false;
+        for (let guess of savedWordle[today()][1]) {
+            for (let letter of guess) {
+                pressKey(letter);
+            }
+            pressEnter();
+        }
+        gameGoing = true;
+
+    }, 2000)
+}
+
+
+function streak() {
+    let gamesPlayed = Object.keys(savedWordle).length;
+    let victories = Array(gamesPlayed).fill(0).map((v, i) =>savedWordle[Object.keys(savedWordle)[i]][2]);
+    let i = 1;
+    let streakCount = 0;
+    if (!victories.includes(false) && victories.length > 0) {
+        return gamesPlayed;
+    } else {
+        while (victories[gamesPlayed - i] == true && i <= gamesPlayed) {
+            streakCount++;
+            i++;
+        }
+    }
+    return streakCount;
+}
+
+setTimeout(()=>{
+    document.getElementById('gamesplayed').textContent = `Games Played: ${Object.keys(savedWordle).length}`;
+    document.getElementById('streak').textContent = `Current Streak: ${streak()}`;
+}, 2000);
+
+
 
 let first = [0, 330, 660, 991, 1322, 1653, 1984];
 let second = [0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 143, 154, 165, 176, 187, 198, 209, 220, 231, 242, 253, 264, 275, 286, 297, 308, 319];
@@ -331,10 +412,14 @@ return response.text();
     allowedWords = [...La, ...Ta];
     // targetWord = La[Math.floor(Math.random() * La.length)];
     targetWord = La[randomList[indexToday]];
+    savedWordle[today()][0] = targetWord;
+    localStorage.setItem('wordle', JSON.stringify(savedWordle));
 })
 .catch(error => {
 console.error('Error fetching the file:', error);
 });
+
+
 
 
 /*
@@ -344,8 +429,12 @@ console.error('Error fetching the file:', error);
     let currentRow = 0;
     let currentCol = 0;
     let currentGuess = "";
-    const targetWord = La[Math.floor(Math.random() * La.length)];
+    // const targetWord = La[Math.floor(Math.random() * La.length)];
+    const targetWord = "AFIRE";
+    savedWordle[today()][0] = targetWord;
+    localStorage.setItem('wordle', JSON.stringify(savedWordle));
 */
+
     let greenLetters = [];
     let yellowLetters = [];
     let blackLetters = [];
@@ -414,7 +503,6 @@ console.error('Error fetching the file:', error);
                 targetLetters[i] = null;
             }
         }
-        console.log(green_cells);
         
         for (let i = 0; i < 5; i++) {
             if (!green_cells.includes(i)) {
@@ -424,7 +512,6 @@ console.error('Error fetching the file:', error);
                 }
             }
         }
-        console.log(yellow_cells);
 
         for (let i = 0; i < 5; i++) {
             const cell = row.children[i];
@@ -438,6 +525,11 @@ console.error('Error fetching the file:', error);
                 cell.classList.add("absent");
                 blackLetters.push(currentGuess[i]);
             }
+        }
+
+        if (gameGoing) {
+            savedWordle[today()][1].push(currentGuess);
+            localStorage.setItem('wordle', JSON.stringify(savedWordle));
         }
 
 
@@ -462,6 +554,9 @@ console.error('Error fetching the file:', error);
                     cell.classList.add("won");
                 }
             }, 2700);
+
+            savedWordle[today()][2] = true;
+            localStorage.setItem('wordle', JSON.stringify(savedWordle));
 
             document.removeEventListener("keydown", handleKeyPress);
             document.querySelectorAll(".key").forEach(key => key.removeEventListener("click", handleKeyClick));
