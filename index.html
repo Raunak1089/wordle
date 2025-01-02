@@ -595,12 +595,12 @@ console.error('Error fetching the file:', error);
             document.querySelector('#share_button').style.display = "inline";
             let boxColorIndices = getBoxes(currentRow + 1);
             let colors = ["&#129001;", "&#129000;", "&#11035;"];
-            let text = `Wordle on ${today()}\nSolved in ${boxColorIndices.length}/5\n\n`;
+            let text = `Wordle on ${today()}\nSolved in ${boxColorIndices.length}/6\n\n`;
             for (let i = 0; i < boxColorIndices.length; i++) {
                 for (let j = 0; j < 5; j++) {
                     text += colors[boxColorIndices[i][j]];
                 }
-                text += "<br>";
+                text += "\n";
             }
             text += '\n\nGive it a try!';
             document.querySelector('#send_text').innerHTML = text;
