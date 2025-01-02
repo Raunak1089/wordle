@@ -27,6 +27,23 @@
             margin-bottom: 20px;
             font-family: Anton;
         }
+        #share_button {
+            color: #6aaa64;
+            font-size: 2em;
+            display: none;
+            opacity: 0;
+            margin: -0.7em auto;
+            transition: 0.2s ease;
+            width: 1.2em;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 2;
+            cursor: pointer;
+        }
+        #share_button:hover {
+            color: white;
+            background: #6aaa64;
+        }
         #msg {
             background: white;
             font-family: Roboto;
@@ -141,21 +158,6 @@
                 transform: translateX(0px);
             }
         }
-        div.cell:nth-child(1) {
-            animation-delay: 100ms;
-        }
-        div.cell:nth-child(2) {
-            animation-delay: 600ms;
-        }
-        div.cell:nth-child(3) {
-            animation-delay: 1100ms;
-        }
-        div.cell:nth-child(4) {
-            animation-delay: 1600ms;
-        }
-        div.cell:nth-child(5) {
-            animation-delay: 2100ms;
-        }
         .keyboard {
             margin-top: 20px;
             display: flex;
@@ -192,7 +194,11 @@
         <div id="gamesplayed"></div>
         <div id="streak"></div>
     </div>
+    <div id="send_text" style="display: none;"></div>
     <div id="heading">Wordle</div>
+    <div id="share_button">
+        <i class="fa-sharp fa-thick fa-share-nodes"></i>
+    </div>
     <div id="msg">MESSAGE</div>
     <div class="container">
         <div class="row">
@@ -278,6 +284,17 @@
 </div>
 <script>
 
+//  ADD THE ANIMATION DELAYS TO ALL ROWS    ___________________________
+for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 6; j++) {
+        const row = document.querySelector(`.row:nth-child(${j + 1})`);
+        row.children[i].style.animationDelay = `${i * 500 + 100}ms`;
+    }
+}
+
+// ____________________________________________________________________
+
+
 let savedWordle;
 let gameGoing = true;
 function today() {
@@ -319,6 +336,13 @@ function pressEnter(){
 
 //  RETRIEVE TODAY'S CONTINUING GAME  _____________________
 if (savedWordle[today()][1].length > 0) {
+    for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < savedWordle[today()][1].length; j++) {
+            const row = document.querySelector(`.row:nth-child(${j + 1})`);
+            row.children[i].style.animationDelay = `${0}ms`;
+        }
+    }
+
     setTimeout(()=>{
         gameGoing = false;
         for (let guess of savedWordle[today()][1]) {
@@ -328,7 +352,6 @@ if (savedWordle[today()][1].length > 0) {
             pressEnter();
         }
         gameGoing = true;
-
     }, 2000)
 }
 
@@ -482,6 +505,20 @@ console.error('Error fetching the file:', error);
         }
     }
 
+    function getBoxes(upto) {
+        let boxes = [];
+        for (let j = 0; j < upto; j++) {
+            boxes.push([]);
+            const row = document.querySelector(`.row:nth-child(${j + 1})`);
+            for (let i = 0; i < 5; i++) {
+                if (row.children[i].classList.value == 'cell absent') {boxes[j].push(2)}
+                else if (row.children[i].classList.value == 'cell present') {boxes[j].push(1)}
+                else {boxes[j].push(0)}
+            }
+        }
+        return boxes;
+    }
+
     function submitGuess() {
         const row = document.querySelector(`.row:nth-child(${currentRow + 1})`);
         if (currentGuess.length !== 5) return;
@@ -554,6 +591,40 @@ console.error('Error fetching the file:', error);
                     cell.classList.add("won");
                 }
             }, 2700);
+
+            document.querySelector('#share_button').style.display = "inline";
+            let boxColorIndices = getBoxes(currentRow + 1);
+            let colors = ["&#129001;", "&#129000;", "&#11035;"];
+            let text = `Wordle on ${today()}\nSolved in ${boxColorIndices.length}/5\n\n`;
+            for (let i = 0; i < boxColorIndices.length; i++) {
+                for (let j = 0; j < 5; j++) {
+                    text += colors[boxColorIndices[i][j]];
+                }
+                text += "<br>";
+            }
+            text += '\n\nGive it a try!';
+            document.querySelector('#send_text').innerHTML = text;
+
+            setTimeout(()=>{
+                document.querySelector('#share_button').style.opacity = 1;
+                document.querySelector('#share_button').addEventListener('click', async () => {
+                    if (navigator.share) {
+                        try {
+                        await navigator.share({
+                            title: 'Wordle',
+                            text: document.querySelector('#send_text').textContent,
+                        });
+                        console.log('Content shared successfully!');
+                        } catch (error) {
+                        console.error('Error sharing:', error);
+                        }
+                    } else {
+                        alert('Web Share API is not supported in your browser.');
+                    }
+                });
+
+            }, 7700);
+
 
             savedWordle[today()][2] = true;
             localStorage.setItem('wordle', JSON.stringify(savedWordle));
