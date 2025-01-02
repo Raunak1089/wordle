@@ -404,7 +404,7 @@ return response.text();
     randomList = eval(text);
 })
 .catch(error => {
-console.error('Error fetching the file:', error);
+    location.href = location.href;
 });
 
 fetch('wordle-La.txt')
@@ -439,7 +439,7 @@ return response.text();
     localStorage.setItem('wordle', JSON.stringify(savedWordle));
 })
 .catch(error => {
-console.error('Error fetching the file:', error);
+    location.href = location.href;
 });
 
 
