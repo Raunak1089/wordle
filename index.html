@@ -357,7 +357,7 @@ if (savedWordle[today()][1].length > 0) {
 
 
 function streak() {
-    let gamesPlayed = Object.keys(savedWordle).length;
+    let gamesPlayed = Object.keys(savedWordle).length - 1;
     let victories = Array(gamesPlayed).fill(0).map((v, i) =>savedWordle[Object.keys(savedWordle)[i]][2]);
     let i = 1;
     let streakCount = 0;
@@ -373,7 +373,7 @@ function streak() {
 }
 
 setTimeout(()=>{
-    document.getElementById('gamesplayed').textContent = `Games Played: ${Object.keys(savedWordle).length}`;
+    document.getElementById('gamesplayed').textContent = `Games Played: ${Object.keys(savedWordle).length - 1}`;
     document.getElementById('streak').textContent = `Current Streak: ${streak()}`;
 }, 2000);
 
@@ -404,7 +404,7 @@ return response.text();
     randomList = eval(text);
 })
 .catch(error => {
-    location.href = location.href;
+console.error('Error fetching the file:', error);
 });
 
 fetch('wordle-La.txt')
@@ -439,7 +439,7 @@ return response.text();
     localStorage.setItem('wordle', JSON.stringify(savedWordle));
 })
 .catch(error => {
-    location.href = location.href;
+console.error('Error fetching the file:', error);
 });
 
 
@@ -581,6 +581,8 @@ return response.text();
         }
 
         if (currentGuess === targetWord) {
+            document.getElementById('streak').textContent = `Current Streak: ${streak()}`;
+
             setTimeout(()=>{
                 for (let i = 0; i < 5; i++) {
                     row.children[i].style.animationDelay = `${i * 100}ms`;
@@ -592,6 +594,7 @@ return response.text();
                 }
             }, 2700);
 
+            //  SHARE BUTTON  _______________________________________
             document.querySelector('#share_button').style.display = "inline";
             let boxColorIndices = getBoxes(currentRow + 1);
             let colors = ["&#129001;", "&#129000;", "&#11035;"];
