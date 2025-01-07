@@ -357,24 +357,28 @@ if (savedWordle[today()][1].length > 0) {
 
 
 function streak() {
-    let gamesPlayed = Object.keys(savedWordle).length - 1;
-    let victories = Array(gamesPlayed).fill(0).map((v, i) =>savedWordle[Object.keys(savedWordle)[i]][2]);
+    let datesPlayed = [];
+    for (let i in Object.keys(savedWordle)) {
+        if (savedWordle[Object.keys(savedWordle)[i]][1].length > 0) datesPlayed.push(Object.keys(savedWordle)[i])
+    }
+    let gamesPlayed = datesPlayed.length;
+    let victories = Array(gamesPlayed).fill(0).map((v, i) =>savedWordle[datesPlayed[i]][2]);
     let i = 1;
     let streakCount = 0;
     if (!victories.includes(false) && victories.length > 0) {
-        return gamesPlayed;
+        return [gamesPlayed, gamesPlayed];
     } else {
         while (victories[gamesPlayed - i] == true && i <= gamesPlayed) {
             streakCount++;
             i++;
         }
     }
-    return streakCount;
+    return [gamesPlayed, streakCount];
 }
 
 setTimeout(()=>{
-    document.getElementById('gamesplayed').textContent = `Games Played: ${Object.keys(savedWordle).length - 1}`;
-    document.getElementById('streak').textContent = `Current Streak: ${streak()}`;
+    document.getElementById('gamesplayed').textContent = `Games Played: ${streak()[0]}`;
+    document.getElementById('streak').textContent = `Current Streak: ${streak()[1]}`;
 }, 2000);
 
 
@@ -568,6 +572,7 @@ console.error('Error fetching the file:', error);
             savedWordle[today()][1].push(currentGuess);
             localStorage.setItem('wordle', JSON.stringify(savedWordle));
         }
+        document.getElementById('gamesplayed').textContent = `Games Played: ${streak()[0]}`;
 
 
 
@@ -581,7 +586,7 @@ console.error('Error fetching the file:', error);
         }
 
         if (currentGuess === targetWord) {
-            document.getElementById('streak').textContent = `Current Streak: ${streak()}`;
+            document.getElementById('streak').textContent = `Current Streak: ${streak()[1]}`;
 
             setTimeout(()=>{
                 for (let i = 0; i < 5; i++) {
