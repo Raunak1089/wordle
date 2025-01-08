@@ -301,16 +301,19 @@ function today() {
     return new Date().toJSON().split('T')[0];
 }
 
-if (!localStorage.getItem('wordle')) {
-    savedWordle = {};
-    savedWordle[today()] = [null, [], false];
-    localStorage.setItem('wordle', JSON.stringify(savedWordle));
-} else if (!JSON.parse(localStorage.getItem('wordle'))[today()]) {
-    savedWordle = JSON.parse(localStorage.getItem('wordle'));
-    savedWordle[today()] = [null, [], false];
-} else {
-    savedWordle = JSON.parse(localStorage.getItem('wordle'));
-}
+//  CHECK IF LOCAL STORAGE IS EMPTY  _____________________________
+// if (!localStorage.getItem('wordle')) {
+//     savedWordle = {};
+//     savedWordle[today()] = [null, [], false];
+//     localStorage.setItem('wordle', JSON.stringify(savedWordle));
+// } else if (!JSON.parse(localStorage.getItem('wordle'))[today()]) {
+//     savedWordle = JSON.parse(localStorage.getItem('wordle'));
+//     savedWordle[today()] = [null, [], false];
+// } else {
+//     savedWordle = JSON.parse(localStorage.getItem('wordle'));
+// }
+
+savedWordle = JSON.parse(`{"2025-01-02":["SINGE",["ADIEU","LEGIT","WORST","SIEGE","SINGE"],true],"2025-01-03":["TRUNK",["ADIEU","WORST","TRUNK"],true],"2025-01-04":["MACRO",["ADIEU","WORST","FLORA","OVARY","MACRO"],true],"2025-01-05":["CONCH",[],false],"2025-01-07":["MUSKY",["ADIEU","WORST","SCULP","BUSHY","MUSKY"],true]}`);
 
 function pressKey(K){
     const keyPressEvent = new KeyboardEvent('keydown', {
@@ -586,6 +589,8 @@ console.error('Error fetching the file:', error);
         }
 
         if (currentGuess === targetWord) {
+            savedWordle[today()][2] = true;
+            localStorage.setItem('wordle', JSON.stringify(savedWordle));
             document.getElementById('streak').textContent = `Current Streak: ${streak()[1]}`;
 
             setTimeout(()=>{
@@ -633,9 +638,6 @@ console.error('Error fetching the file:', error);
 
             }, 7700);
 
-
-            savedWordle[today()][2] = true;
-            localStorage.setItem('wordle', JSON.stringify(savedWordle));
 
             document.removeEventListener("keydown", handleKeyPress);
             document.querySelectorAll(".key").forEach(key => key.removeEventListener("click", handleKeyClick));
