@@ -302,18 +302,16 @@ function today() {
 }
 
 //  CHECK IF LOCAL STORAGE IS EMPTY  _____________________________
-// if (!localStorage.getItem('wordle')) {
-//     savedWordle = {};
-//     savedWordle[today()] = [null, [], false];
-//     localStorage.setItem('wordle', JSON.stringify(savedWordle));
-// } else if (!JSON.parse(localStorage.getItem('wordle'))[today()]) {
-//     savedWordle = JSON.parse(localStorage.getItem('wordle'));
-//     savedWordle[today()] = [null, [], false];
-// } else {
-//     savedWordle = JSON.parse(localStorage.getItem('wordle'));
-// }
-
-savedWordle = JSON.parse(`{"2025-01-02":["SINGE",["ADIEU","LEGIT","WORST","SIEGE","SINGE"],true],"2025-01-03":["TRUNK",["ADIEU","WORST","TRUNK"],true],"2025-01-04":["MACRO",["ADIEU","WORST","FLORA","OVARY","MACRO"],true],"2025-01-05":["CONCH",[],false],"2025-01-07":["MUSKY",["ADIEU","WORST","SCULP","BUSHY","MUSKY"],true]}`);
+if (!localStorage.getItem('wordle')) {
+    savedWordle = {};
+    savedWordle[today()] = [null, [], false];
+    localStorage.setItem('wordle', JSON.stringify(savedWordle));
+} else if (!JSON.parse(localStorage.getItem('wordle'))[today()]) {
+    savedWordle = JSON.parse(localStorage.getItem('wordle'));
+    savedWordle[today()] = [null, [], false];
+} else {
+    savedWordle = JSON.parse(localStorage.getItem('wordle'));
+}
 
 function pressKey(K){
     const keyPressEvent = new KeyboardEvent('keydown', {
