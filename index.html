@@ -27,23 +27,48 @@
             margin-bottom: 20px;
             font-family: Anton;
         }
-        #share_button {
-            color: #6aaa64;
-            font-size: 2em;
-            display: none;
-            opacity: 0;
-            margin: -0.7em auto;
+        #share_box {
+            position: absolute;
+            background: white;
+            color: #333;
+            font-size: 1.5em;
             transition: 0.2s ease;
-            width: 1.2em;
             border-radius: 5px;
+            padding: 5px 15px;
             text-align: center;
             z-index: 2;
-            cursor: pointer;
+            display: none;
+            opacity: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            width: 75%;
+            height: 50vh;
+            top: 20%;
         }
-        #share_button:hover {
+        #share_button {
             color: white;
             background: #6aaa64;
+            font-size: 2em;
+            transition: 0.2s ease;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            width: fit-content;
+            padding: 0px 15px;
         }
+        #share_button:hover {
+            filter: brightness(0.5);
+        }
+        #final_word {
+            display: flex;
+            scale: 0.7;
+            color: white;
+        }
+        #final_word * {
+            margin: 2px;
+        }
+
         #msg {
             background: white;
             font-family: Roboto;
@@ -196,8 +221,16 @@
     </div>
     <div id="send_text" style="display: none;"></div>
     <div id="heading">Wordle</div>
-    <div id="share_button">
-        <i class="fa-sharp fa-thick fa-share-nodes"></i>
+    <div id="share_box">
+        <div>Congratulations!</div>
+        <div id="final_word"></div>
+        <div id="3rdDiv"></div>
+        <div id="4thDiv"></div>
+        <div>Share your victory!</div>
+        <div id="share_button">
+            <i class="fa-sharp fa-thick fa-share-nodes"></i>
+            <span>Share</span>
+        </div>
     </div>
     <div id="msg">MESSAGE</div>
     <div class="container">
@@ -590,6 +623,9 @@ console.error('Error fetching the file:', error);
             savedWordle[today()][2] = true;
             localStorage.setItem('wordle', JSON.stringify(savedWordle));
             document.getElementById('streak').textContent = `Current Streak: ${streak()[1]}`;
+            document.getElementById('final_word').innerHTML = row.innerHTML;
+            document.getElementById('3rdDiv').innerHTML = `You have solved the wordle on ${today()}!`;
+            document.getElementById('4thDiv').innerHTML = `Your current streak: ${streak()[1]}`;
 
             setTimeout(()=>{
                 for (let i = 0; i < 5; i++) {
@@ -603,7 +639,7 @@ console.error('Error fetching the file:', error);
             }, 2700);
 
             //  SHARE BUTTON  _______________________________________
-            document.querySelector('#share_button').style.display = "inline";
+            document.querySelector('#share_box').style.display = "flex";
             let boxColorIndices = getBoxes(currentRow + 1);
             let colors = ["&#129001;", "&#129000;", "&#11035;"];
             let text = `Wordle on ${today()}\nSolved in ${boxColorIndices.length}/6\n\n`;
@@ -615,9 +651,10 @@ console.error('Error fetching the file:', error);
             }
             text += '\n\nGive it a try!\nhttps://raunak1089.github.io/wordle/';
             document.querySelector('#send_text').innerHTML = text;
+            console.log(text);
 
             setTimeout(()=>{
-                document.querySelector('#share_button').style.opacity = 1;
+                document.querySelector('#share_box').style.opacity = 1;
                 document.querySelector('#share_button').addEventListener('click', async () => {
                     if (navigator.share) {
                         try {
